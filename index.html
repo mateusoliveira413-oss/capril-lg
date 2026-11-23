@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Capril LG</title>
+<meta name="theme-color" content="#F7EADC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Capril LG">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  html,body{margin:0;height:100%;background:#F7EADC;overflow:hidden;font-family:system-ui,sans-serif;color:#140C08}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#F7EADC}
+  #abertura{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#F7EADC;transition:opacity .4s;z-index:2}
+  #abertura img{width:min(62vw,260px);height:auto}
+  .barra{width:140px;height:4px;border-radius:4px;background:#E7D6C3;overflow:hidden}
+  .barra i{display:block;width:40%;height:100%;background:#D06B26;border-radius:4px;animation:vai 1.1s ease-in-out infinite}
+  @keyframes vai{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+  #msg{font-size:14px;color:#5A4236;text-align:center;padding:0 24px;max-width:420px;line-height:1.5}
+  #msg button{margin-top:12px;font:600 15px system-ui;padding:12px 20px;border-radius:12px;border:2px solid #140C08;background:#FFFBF6}
+  #offline{display:none;position:fixed;left:0;right:0;top:0;padding:10px;text-align:center;background:#A8321C;color:#fff;font-size:14px;font-weight:600;z-index:3}
+</style>
+</head>
+<body>
+<div id="offline">Sem internet. Os dados vão aparecer quando a conexão voltar.</div>
+<div id="abertura">
+  <img src="logo-abertura.png" alt="Capril LG · Santo André-PB">
+  <div class="barra"><i></i></div>
+  <div id="msg">Carregando…</div>
+</div>
+<script src="config.js"></script>
+<script>
+  const ab = document.getElementById('abertura'), msg = document.getElementById('msg');
+  if (!/^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(LINK_DO_APP.trim())) {
+    msg.innerHTML = 'Falta configurar o link do app.<br>Edite o arquivo <b>config.js</b> e cole o link que termina em <b>/exec</b>.';
+    document.querySelector('.barra').style.display = 'none';
+  } else {
+    const f = document.createElement('iframe');
+    f.src = LINK_DO_APP;
+    f.title = 'Capril LG';
+    f.allow = 'camera; clipboard-write';
+    f.onload = () => { ab.style.opacity = 0; setTimeout(() => ab.remove(), 450); };
+    document.body.appendChild(f);
+    setTimeout(() => { if (document.body.contains(ab)) msg.innerHTML = 'Está demorando mais que o normal (o Google pode estar "acordando" o app).<br><button onclick="location.reload()">Tentar de novo</button>'; }, 20000);
+  }
+  const net = () => document.getElementById('offline').style.display = navigator.onLine ? 'none' : 'block';
+  addEventListener('online', net); addEventListener('offline', net); net();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
